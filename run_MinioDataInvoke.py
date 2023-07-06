@@ -88,12 +88,6 @@ def get_content_in_bucket():
         return json.dumps(_json, ensure_ascii=False)
 
 
-def main(args):
-    global minioObj
-    minioObj = MinioOperator(host=args.miniohost, port=str(args.minioport), user=args.miniouser, pwd=args.miniopwd)
-    app.run(args.host, args.port)
-
-
 if __name__ == '__main__':
     mainServiceHost = os.environ.get("mainservicehost", "127.0.0.1")
     mainServicePort = os.environ.get("mainserviceport", "8120")
@@ -110,4 +104,5 @@ if __name__ == '__main__':
     argParser.add_argument("--miniouser", default=minioUser, type=str, help="minio用户名，缺省 minioadmin", dest="miniouser")
     argParser.add_argument("--miniopwd", default=minioPwd, type=str, help="minio密码，缺省 minioadmin", dest="miniopwd")
     arg = argParser.parse_args()
-    main(arg)
+    minioObj = MinioOperator(host=arg.miniohost, port=str(arg.minioport), user=arg.miniouser, pwd=arg.miniopwd)
+    app.run(arg.host, arg.port)
