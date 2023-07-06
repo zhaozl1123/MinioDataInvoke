@@ -1,0 +1,1 @@
+gunicorn --chdir /workbench run_MinioDataInvoke:app -c /workbench/gunicorn.conf.py -t 86400
