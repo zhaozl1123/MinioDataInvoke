@@ -19,14 +19,31 @@ minioPwd = os.environ.get("miniopwd", "minioadmin")
 # argParser = argparse.ArgumentParser()
 # argParser.add_argument("--host", default=mainServiceHost, type=str, help="本服务IP地址，缺省 127.0.0.1", dest="host")
 # argParser.add_argument("--port", default=int(mainServicePort), type=int, help="本服务端口号，缺省 8120", dest="port")
-# argParser.add_argument("--miniohost", default=minioHost, type=str, help="minio服务IP地址，缺省 127.0.0.1",
-#                        dest="miniohost")
+# argParser.add_argument("--miniohost", default=minioHost, type=str, help="minio服务IP地址，缺省 127.0.0.1", dest="miniohost")
 # argParser.add_argument("--minioport", default=minioPort, type=int, help="minio服务端口号，缺省 9000", dest="minioport")
 # argParser.add_argument("--miniouser", default=minioUser, type=str, help="minio用户名，缺省 minioadmin", dest="miniouser")
 # argParser.add_argument("--miniopwd", default=minioPwd, type=str, help="minio密码，缺省 minioadmin", dest="miniopwd")
 # arg = argParser.parse_args()
 minioObj = MinioOperator(host=minioHost, port=str(minioPort), user=minioUser, pwd=minioPwd)
-app.run(mainServiceHost, mainServicePort)
+
+# mainServiceHost = os.environ.get("mainservicehost", "127.0.0.1")
+# mainServicePort = os.environ.get("mainserviceport", "8120")
+# minioHost = os.environ.get("miniohost", "127.0.0.1")
+# minioPort = os.environ.get("minioport", "9000")
+# minioUser = os.environ.get("miniouser", "minioadmin")
+# minioPwd = os.environ.get("miniopwd", "minioadmin")
+#
+# # argParser = argparse.ArgumentParser()
+# # argParser.add_argument("--host", default=mainServiceHost, type=str, help="本服务IP地址，缺省 127.0.0.1", dest="host")
+# # argParser.add_argument("--port", default=int(mainServicePort), type=int, help="本服务端口号，缺省 8120", dest="port")
+# # argParser.add_argument("--miniohost", default=minioHost, type=str, help="minio服务IP地址，缺省 127.0.0.1",
+# #                        dest="miniohost")
+# # argParser.add_argument("--minioport", default=minioPort, type=int, help="minio服务端口号，缺省 9000", dest="minioport")
+# # argParser.add_argument("--miniouser", default=minioUser, type=str, help="minio用户名，缺省 minioadmin", dest="miniouser")
+# # argParser.add_argument("--miniopwd", default=minioPwd, type=str, help="minio密码，缺省 minioadmin", dest="miniopwd")
+# # arg = argParser.parse_args()
+# minioObj = MinioOperator(host=minioHost, port=str(minioPort), user=minioUser, pwd=minioPwd)
+# app.run(mainServiceHost, mainServicePort)
 
 
 @app.route('/allBucketNames', methods=['GET'])
@@ -108,7 +125,9 @@ def get_content_in_bucket():
         return json.dumps(_json, ensure_ascii=False)
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    # global minioObj
+    #
     # mainServiceHost = os.environ.get("mainservicehost", "127.0.0.1")
     # mainServicePort = os.environ.get("mainserviceport", "8120")
     # minioHost = os.environ.get("miniohost", "127.0.0.1")
@@ -116,13 +135,13 @@ def get_content_in_bucket():
     # minioUser = os.environ.get("miniouser", "minioadmin")
     # minioPwd = os.environ.get("miniopwd", "minioadmin")
     #
-    # argParser = argparse.ArgumentParser()
-    # argParser.add_argument("--host", default=mainServiceHost, type=str, help="本服务IP地址，缺省 127.0.0.1", dest="host")
-    # argParser.add_argument("--port", default=int(mainServicePort), type=int, help="本服务端口号，缺省 8120", dest="port")
-    # argParser.add_argument("--miniohost", default=minioHost, type=str, help="minio服务IP地址，缺省 127.0.0.1", dest="miniohost")
-    # argParser.add_argument("--minioport", default=minioPort, type=int, help="minio服务端口号，缺省 9000", dest="minioport")
-    # argParser.add_argument("--miniouser", default=minioUser, type=str, help="minio用户名，缺省 minioadmin", dest="miniouser")
-    # argParser.add_argument("--miniopwd", default=minioPwd, type=str, help="minio密码，缺省 minioadmin", dest="miniopwd")
-    # arg = argParser.parse_args()
-    # minioObj = MinioOperator(host=arg.miniohost, port=str(arg.minioport), user=arg.miniouser, pwd=arg.miniopwd)
-    # app.run(arg.host, arg.port)
+    # # argParser = argparse.ArgumentParser()
+    # # argParser.add_argument("--host", default=mainServiceHost, type=str, help="本服务IP地址，缺省 127.0.0.1", dest="host")
+    # # argParser.add_argument("--port", default=int(mainServicePort), type=int, help="本服务端口号，缺省 8120", dest="port")
+    # # argParser.add_argument("--miniohost", default=minioHost, type=str, help="minio服务IP地址，缺省 127.0.0.1", dest="miniohost")
+    # # argParser.add_argument("--minioport", default=minioPort, type=int, help="minio服务端口号，缺省 9000", dest="minioport")
+    # # argParser.add_argument("--miniouser", default=minioUser, type=str, help="minio用户名，缺省 minioadmin", dest="miniouser")
+    # # argParser.add_argument("--miniopwd", default=minioPwd, type=str, help="minio密码，缺省 minioadmin", dest="miniopwd")
+    # # arg = argParser.parse_args()
+    # minioObj = MinioOperator(host=minioHost, port=str(minioPort), user=minioUser, pwd=minioPwd)
+    app.run(mainServiceHost, mainServicePort)
