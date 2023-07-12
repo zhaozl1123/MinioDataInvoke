@@ -16,8 +16,8 @@ class MinioOperator:
         _obj = self.minioObj.list_buckets()
         return [item.name for item in _obj]
 
-    def listContent(self, bucketName, recursive=True):
-        _obj = self.minioObj.list_objects(bucketName, recursive=recursive)
+    def listContent(self, bucketName, recursive=True, prefix=None):
+        _obj = self.minioObj.list_objects(bucketName, recursive=recursive, prefix=prefix)
         return [item.object_name for item in _obj]
 
     def getContent(self, bucketName, contentName):

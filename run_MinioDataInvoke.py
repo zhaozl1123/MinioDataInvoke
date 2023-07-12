@@ -1,14 +1,18 @@
+from datetime import datetime, timedelta
 import os
 import json
 import base64
+import re
+import numpy as np
 import warnings, argparse
 
 from flask import Flask, request
+from flask_cors import CORS
 from Method_MinioOperator import MinioOperator, getTime
 
 
 app = Flask(__name__)
-
+CORS(app, resources=r'/*')
 mainServiceHost = os.environ.get("mainservicehost", "127.0.0.1")
 mainServicePort = os.environ.get("mainserviceport", "8120")
 minioHost = os.environ.get("miniohost", "127.0.0.1")
@@ -67,8 +71,10 @@ def get_contents_in_bucket(bucketName):
     global minioObj
     try:
         res = minioObj.listContent(bucketName)
+        res_suffixes = [item.split('.')[-1] for item in res]
+        res_names = [item.split('.')[0] for item in res]
         return json.dumps(
-            {"bucketName": bucketName, "contentNames": res, "operationTime": getTime()}, ensure_ascii=False
+                {"bucketName": bucketName, "contentNames": res_names, "contentSuffix": res_suffixes,  "operationTime": getTime()}, ensure_ascii=False
         )
     except Exception as e:
         _msg = f"无法访问minio服务，检查minio配置, " \
@@ -123,6 +129,61 @@ def get_content_in_bucket():
         warnings.warn(f"错误信息：{e}")
         _json = {"info": _msg, "operationTime": getTime()}
         return json.dumps(_json, ensure_ascii=False)
+
+
+@app.route('/contentList/latest/', methods=['GET'])
+def get_latest_content_list_in_buckets():
+    global minioObj
+    try:
+        requestDict = request.args.to_dict()
+        unitIndex = requestDict["unit"]
+        res = {}
+        if unitIndex != "0":
+            try:
+                _unitName = f"unit{requestDict['unit']}"
+                res = get_latest_content_list_in_bucket(minioObj, _unitName)
+            except Exception as e:
+                pass
+        else:
+            index = 1
+            while index <= 5:
+                try:
+                    _unitName = f"unit{index}"
+                    _res = get_latest_content_list_in_bucket(minioObj, _unitName)
+                    res = {**res, **_res}
+                except Exception as e:
+                    pass
+                index += 1
+        return json.dumps({"info": res, "operationTime": getTime()}, ensure_ascii=False)
+    except Exception as e:
+        _msg = f"无法响应，minio服务配置如下, " \
+               f"HOST:{minioObj.host}  PORT:{minioObj.port}  USER:{minioObj.user}  PWD:{minioObj.pwd}"
+        warnings.warn(_msg)
+        warnings.warn(f"错误信息：{e}")
+        _json = {"info": _msg, "operationTime": getTime()}
+        return json.dumps(_json, ensure_ascii=False)
+
+
+def get_latest_content_list_in_bucket(minioOperator, bucketName):
+    retrievedData = []
+    counter = 0
+    _now = datetime.now()
+    _deltaDate = timedelta(days=1)
+    _dateList = _now.strftime("%Y-%m-%d").split("-")
+    while (len(retrievedData) == 0) and (counter <= 30):
+        prefer_day = "/".join(_dateList)
+        retrievedData = minioOperator.listContent(bucketName, recursive=True, prefix=prefer_day)
+        _dateList = (_now - _deltaDate).strftime("%Y-%m-%d").split("-")
+        _now = _now - _deltaDate
+        counter += 1
+    _records = list(np.unique(re.findall("Record[0-9]{2,}", "".join([item.split("/")[3] for item in retrievedData]))))
+    _maxRecordIndex = max([int(item.replace("Record", "")) for item in _records])
+    res = []
+    for item in retrievedData:
+        _cache = f"Record{'0' if _maxRecordIndex < 10 else ''}{_maxRecordIndex}"
+        if _cache in item:
+            res.append(item)
+    return {bucketName: res}
 
 
 if __name__ == '__main__':
